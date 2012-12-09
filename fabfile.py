@@ -4,30 +4,36 @@ from fabtools import require
 import fabtools
 
 @task
+def deploy():
+    with prefix('source ~/deploy_test_env/bin/activate'):
+        with cd('~/deploy_test'):
+            run('git pull')
+
+@task
 def start():
-    with fabtools.python.virtualenv('deploy_test_env'):
-        with cd('deploy_test'):
-            fabtools.supervisor.start_process('app')
+    with prefix('source ~/deploy_test_env/bin/activate'):
+        with cd('~/deploy_test'):
+            run('supervisord')
 
 @task
 def stop():
-    with fabtools.python.virtualenv('deploy_test_env'):
+    with prefix('source ~/deploy_test_env/bin/activate'):
         with cd('deploy_test'):
-            fabtools.supervisor.stop_process('app')
+            run('kill `cat supervisord.pid`')
 
 @task
 def setup():
     require.python.pip()
 
     # Create venv
-    require.python.virtualenv('deploy_test_env')
+    run('virtualenv deploy_test_env')
 
     # activate venv
     with fabtools.python.virtualenv('deploy_test_env'):
         # clone repo
-        run('git clone git@github.com:davidwilemski/deploy_test.git')
+        run('git clone https://github.com/davidwilemski/deploy_test.git')
         
         # install requirements
-        require.python.requirements('deploy_test/requirements.txt')
+        fabtools.python.install_requirements('deploy_test/requirements.txt')
 
     start()
