@@ -8,6 +8,8 @@ def deploy():
     with prefix('source ~/deploy_test_env/bin/activate'):
         with cd('~/deploy_test'):
             run('git pull')
+    stop()
+    start()
 
 @task
 def start():
