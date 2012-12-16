@@ -6,6 +6,7 @@ import fabtools
 @task
 def deploy():
     with prefix('source ~/deploy_test_env/bin/activate'):
+        fabtools.python.install_requirements('deploy_test/requirements.txt')
         with cd('~/deploy_test'):
             run('git pull')
     stop()
